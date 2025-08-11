@@ -1,0 +1,9 @@
+streamlit
+PyPDF2
+transformers
+torch
+sentencepiece
+Pillow
+matplotlib
+seaborn
+streamlit-lottie
