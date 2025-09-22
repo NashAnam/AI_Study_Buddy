@@ -7,6 +7,9 @@ import os
 from PIL import Image
 
 
+# Always use this in Streamlit Cloud
+json_path = os.path.join(os.getcwd(), "users.json")
+
 # Import database and initialize tables
 import database
 database.init_all_tables() 
