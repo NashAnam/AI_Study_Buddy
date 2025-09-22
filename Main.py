@@ -28,7 +28,7 @@ if "redirect_to_welcome" not in st.session_state:
 banner_path = os.path.join("assets", "banner.png")
 if os.path.exists(banner_path):
     banner = Image.open(banner_path)
-    st.image(banner, use_container_width=True)
+    st.image(banner, use_column_width=True)
 else:
     st.warning("Banner image not found.")
 
