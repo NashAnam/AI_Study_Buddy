@@ -1,9 +1,9 @@
 import sqlite3
-import os
 from datetime import datetime
 
 DB_FILE = "studybuddy.db"
 
+# ---------------------- Database Initialization ----------------------
 def init_all_tables():
     """Initializes all necessary database tables if they don't exist."""
     conn = sqlite3.connect(DB_FILE)
@@ -18,6 +18,10 @@ def init_all_tables():
         created_ts TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
     """)
+
+    # Add default admin user if not exists (username: admin, password: admin123)
+    cur.execute("INSERT OR IGNORE INTO users (username, password_hash) VALUES (?, ?)",
+                ("admin", "8c6976e5b5410415bde908bd4dee15dfb16b1f77f64f63b8a46f8f7f0ee6c2ab"))  # SHA256 hash of "admin123"
 
     # 2. Summaries table
     cur.execute("""
@@ -91,28 +95,32 @@ def init_all_tables():
     conn.commit()
     conn.close()
 
+
 # ---------------------- User Functions ----------------------
 def add_user(username, password_hash):
+    """Add new user. Returns True if successful, False if username exists."""
     init_all_tables()
     conn = sqlite3.connect(DB_FILE)
     cur = conn.cursor()
     try:
         cur.execute("INSERT INTO users (username, password_hash) VALUES (?, ?)", (username, password_hash))
         conn.commit()
+        return True
     except sqlite3.IntegrityError:
         return False
     finally:
         conn.close()
-    return True
 
 def get_user(username):
+    """Get password hash for given username"""
     init_all_tables()
     conn = sqlite3.connect(DB_FILE)
     cur = conn.cursor()
     cur.execute("SELECT password_hash FROM users WHERE username = ?", (username,))
     user = cur.fetchone()
     conn.close()
-    return user
+    return user  # Returns tuple (password_hash,) or None
+
 
 # ---------------------- Summarizer Functions ----------------------
 def save_summary(username, original_text, summary_text):
@@ -132,6 +140,7 @@ def get_user_summaries(username):
     summaries = cur.fetchall()
     conn.close()
     return summaries
+
 
 # ---------------------- Flashcard Functions ----------------------
 def save_flashcard(username, question, answer):
@@ -160,6 +169,7 @@ def delete_flashcards(username, flashcard_ids):
     cur.execute(f"DELETE FROM flashcards WHERE username = ? AND id IN ({placeholders})", (username, *flashcard_ids))
     conn.commit()
     conn.close()
+
 
 # ---------------------- Study Tracker Functions ----------------------
 def add_study_log(username, subject, duration, started_at):
@@ -198,6 +208,7 @@ def get_subjects(username):
     conn.close()
     return subjects
 
+
 # ---------------------- Exam Planner Functions ----------------------
 def add_exam(username, subject, exam_date, notes, difficulty):
     init_all_tables()
@@ -224,6 +235,7 @@ def delete_exam(username, exam_id):
     cur.execute("DELETE FROM exams WHERE username = ? AND id = ?", (username, exam_id))
     conn.commit()
     conn.close()
+
 
 # ---------------------- Report Functions ----------------------
 def save_report(username, report_name, report_data):
@@ -253,6 +265,7 @@ def get_report_by_id(report_id):
     conn.close()
     return report_data[0] if report_data else None
 
+
 # ---------------------- Feedback Functions ----------------------
 def save_feedback(username, message, rating):
     init_all_tables()
@@ -266,11 +279,12 @@ def save_feedback(username, message, rating):
 def get_feedback():
     init_all_tables()
     conn = sqlite3.connect(DB_FILE)
-    cursor = conn.cursor()
-    # Updated SELECT statement to use correct column names from the feedback table
-    cursor.execute("SELECT username, message, rating, created_ts FROM feedback ORDER BY created_ts DESC")
-    feedback_data = cursor.fetchall()
+    cur = conn.cursor()
+    cur.execute("SELECT username, message, rating, created_ts FROM feedback ORDER BY created_ts DESC")
+    feedback_data = cur.fetchall()
     conn.close()
     return feedback_data
 
+
+# ---------------------- Initialize Tables on Import ----------------------
 init_all_tables()
