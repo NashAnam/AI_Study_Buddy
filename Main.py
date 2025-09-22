@@ -6,6 +6,7 @@ import json
 import os
 from PIL import Image
 
+
 # Import database and initialize tables
 import database
 database.init_all_tables() 
@@ -35,6 +36,8 @@ else:
 
 
 # --- Login Function ---
+
+
 def login():
     st.title("🔐 Login to AI Study Buddy")
     st.markdown("Please enter your credentials to continue.")
@@ -44,8 +47,8 @@ def login():
 
     if st.button("Login", key="login_button"):
         try:
-            # Use absolute path relative to main.py
-            json_path = os.path.join(os.path.dirname(__file__), "users.json")
+            # Absolute path relative to the repo root
+            json_path = os.path.join(os.getcwd(), "users.json")
             with open(json_path, "r") as f:
                 users = json.load(f)
 
