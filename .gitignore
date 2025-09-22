@@ -1,0 +1,7 @@
+# Ignore sensitive files
+users.json
+studybuddy.db
+
+# Ignore Python cache
+__pycache__/
+*.pyc
