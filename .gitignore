@@ -1,6 +1,0 @@
-# Ignore sensitive files
-studybuddy.db
-
-# Ignore Python cache
-__pycache__/
-*.pyc
