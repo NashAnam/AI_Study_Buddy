@@ -3,10 +3,9 @@
 
 import streamlit as st
 import os
-import sqlite3
 from PIL import Image
 import database
-import utils  # 👈 password hashing/verification
+import utils  # password hashing/verification
 
 # --- Initialize Database Tables ---
 database.init_all_tables()
@@ -35,24 +34,8 @@ else:
 
 # --- Database Helper for Login ---
 def get_user(username):
-    conn = sqlite3.connect("studybuddy.db")
-    cur = conn.cursor()
-
-    # Ensure users table exists
-    cur.execute("""
-        CREATE TABLE IF NOT EXISTS users (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            username TEXT UNIQUE,
-            password TEXT
-        )
-    """)
-    conn.commit()
-
-    # Fetch user row
-    cur.execute("SELECT username, password FROM users WHERE username=?", (username,))
-    user = cur.fetchone()
-    conn.close()
-    return user
+    """Fetch user from database for login."""
+    return database.get_user(username.strip())  # returns (username, password_hash) or None
 
 # --- Login Function ---
 def login():
@@ -63,15 +46,15 @@ def login():
     password = st.text_input("🔒 Password", type="password", key="login_password")
 
     if st.button("Login", key="login_button"):
-        user = get_user(username.strip())
+        user = get_user(username)
         if user:
             stored_hash = user[1]  # hashed password from DB
             if utils.verify_password(password, stored_hash):
                 st.session_state.logged_in = True
-                st.session_state.username = username.strip()
+                st.session_state.username = username
                 st.session_state.redirect_to_welcome = True
                 st.success("✅ Login successful")
-                st.rerun()
+                st.experimental_rerun()
             else:
                 st.error("❌ Invalid username or password.")
         else:

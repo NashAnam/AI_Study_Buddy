@@ -1,8 +1,8 @@
 import streamlit as st
-import json
-import os
+from database import get_user
+import utils
 
-# Hide sidebar nav
+# --- Hide sidebar navigation ---
 st.markdown("""
 <style>
     [data-testid="stSidebarNav"] {
@@ -11,7 +11,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# Sidebar (can skip if you want it only on Welcome page)
+# --- Sidebar function (if needed later) ---
 def custom_sidebar():
     st.sidebar.title("📚 AI Study Buddy")
     st.sidebar.page_link("pages/1_Welcome.py", label="🏠 Welcome")
@@ -25,18 +25,16 @@ def custom_sidebar():
     st.sidebar.page_link("pages/9_Feedback.py", label="💬 Feedback")
     st.sidebar.page_link("pages/Login.py", label="🔒 Logout")
 
-# Ensure session state
+# --- Initialize session state ---
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
 if "username" not in st.session_state:
     st.session_state.username = ""
 
-import streamlit as st
-from database import get_user
-import utils
-
+# --- Login Function ---
 def login():
     st.title("🔐 Login to AI Study Buddy")
+    st.markdown("Please enter your credentials to continue.")
 
     username = st.text_input("Username", key="login_username")
     password = st.text_input("Password", type="password", key="login_password")
@@ -44,7 +42,7 @@ def login():
     if st.button("Login", key="login_button"):
         user = get_user(username.strip())
         if user:  # user exists
-            stored_hash = user[0]  # get password_hash from DB
+            stored_hash = user[1]  # password_hash from DB
             if utils.verify_password(password, stored_hash):
                 st.session_state.logged_in = True
                 st.session_state.username = username.strip()
@@ -55,8 +53,7 @@ def login():
         else:
             st.error("❌ User not found. Contact admin.")
 
-
-# Show login or redirect
+# --- Show login or redirect ---
 if not st.session_state.logged_in:
     login()
 else:
