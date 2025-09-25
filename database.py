@@ -19,9 +19,10 @@ def init_all_tables():
     )
     """)
 
-    # Add default admin user if not exists (username: admin, password: admin123)
+    # Add default admin user (username: admin, password: admin123)
+    # SHA256 hash of "admin123" is 8c6976e5b5410415bde908bd4dee15dfb16b1f77f64f63b8a46f8f7f0ee6c2ab
     cur.execute("INSERT OR IGNORE INTO users (username, password_hash) VALUES (?, ?)",
-                ("admin", "8c6976e5b5410415bde908bd4dee15dfb16b1f77f64f63b8a46f8f7f0ee6c2ab"))  # SHA256 hash of "admin123"
+                ("admin", "8c6976e5b5410415bde908bd4dee15dfb16b1f77f64f63b8a46f8f7f0ee6c2ab")) 
 
     # 2. Summaries table
     cur.execute("""
@@ -96,10 +97,10 @@ def init_all_tables():
     conn.close()
 
 
-# ---------------------- User Functions (FIXED) ----------------------
+# ---------------------- User Functions (CLEANED) ----------------------
 def add_user(username, password_hash):
     """Add new user. Returns True if successful, False if username exists."""
-    # init_all_tables() # <-- REMOVED
+    # init_all_tables() <-- REMOVED
     conn = sqlite3.connect(DB_FILE)
     cur = conn.cursor()
     try:
@@ -113,19 +114,19 @@ def add_user(username, password_hash):
 
 def get_user(username):
     """Get username and password_hash for given username"""
-    # init_all_tables() # <-- REMOVED
+    # init_all_tables() <-- REMOVED
     conn = sqlite3.connect(DB_FILE)
     cur = conn.cursor()
+    # We SELECT the username and hash needed for verification
     cur.execute("SELECT username, password_hash FROM users WHERE username = ?", (username,))
     user = cur.fetchone()
     conn.close()
     return user  # returns (username, password_hash) or None
 
-# Other DB functions (summaries, flashcards, study logs, exams, reports, feedback)
 
-# ---------------------- Summarizer Functions (FIXED) ----------------------
+# ---------------------- Summarizer Functions (CLEANED) ----------------------
 def save_summary(username, original_text, summary_text):
-    # init_all_tables() # <-- REMOVED
+    # init_all_tables() <-- REMOVED
     conn = sqlite3.connect(DB_FILE)
     cur = conn.cursor()
     cur.execute("INSERT INTO summaries (username, original_text, summary_text) VALUES (?, ?, ?)",
@@ -134,7 +135,7 @@ def save_summary(username, original_text, summary_text):
     conn.close()
 
 def get_user_summaries(username):
-    # init_all_tables() # <-- REMOVED
+    # init_all_tables() <-- REMOVED
     conn = sqlite3.connect(DB_FILE)
     cur = conn.cursor()
     cur.execute("SELECT original_text, summary_text, created_ts FROM summaries WHERE username = ?", (username,))
@@ -143,9 +144,9 @@ def get_user_summaries(username):
     return summaries
 
 
-# ---------------------- Flashcard Functions (FIXED) ----------------------
+# ---------------------- Flashcard Functions (CLEANED) ----------------------
 def save_flashcard(username, question, answer):
-    # init_all_tables() # <-- REMOVED
+    # init_all_tables() <-- REMOVED
     conn = sqlite3.connect(DB_FILE)
     cur = conn.cursor()
     cur.execute("INSERT INTO flashcards (username, question, answer) VALUES (?, ?, ?)",
@@ -154,7 +155,7 @@ def save_flashcard(username, question, answer):
     conn.close()
 
 def get_flashcards(username):
-    # init_all_tables() # <-- REMOVED
+    # init_all_tables() <-- REMOVED
     conn = sqlite3.connect(DB_FILE)
     cur = conn.cursor()
     cur.execute("SELECT id, question, answer, created_ts FROM flashcards WHERE username = ?", (username,))
@@ -163,7 +164,7 @@ def get_flashcards(username):
     return flashcards
 
 def delete_flashcards(username, flashcard_ids):
-    # init_all_tables() # <-- REMOVED
+    # init_all_tables() <-- REMOVED
     conn = sqlite3.connect(DB_FILE)
     cur = conn.cursor()
     placeholders = ','.join('?' for _ in flashcard_ids)
@@ -172,9 +173,9 @@ def delete_flashcards(username, flashcard_ids):
     conn.close()
 
 
-# ---------------------- Study Tracker Functions (FIXED) ----------------------
+# ---------------------- Study Tracker Functions (CLEANED) ----------------------
 def add_study_log(username, subject, duration, started_at):
-    # init_all_tables() # <-- REMOVED
+    # init_all_tables() <-- REMOVED
     conn = sqlite3.connect(DB_FILE)
     cur = conn.cursor()
     cur.execute("INSERT INTO study_logs (username, subject, duration_minutes, started_at) VALUES (?, ?, ?, ?)",
@@ -183,7 +184,7 @@ def add_study_log(username, subject, duration, started_at):
     conn.close()
 
 def get_study_logs(username):
-    # init_all_tables() # <-- REMOVED
+    # init_all_tables() <-- REMOVED
     conn = sqlite3.connect(DB_FILE)
     cur = conn.cursor()
     cur.execute("SELECT id, subject, duration_minutes, started_at, created_ts FROM study_logs WHERE username = ? ORDER BY started_at DESC", (username,))
@@ -192,7 +193,7 @@ def get_study_logs(username):
     return logs
 
 def delete_study_logs(username, log_ids):
-    # init_all_tables() # <-- REMOVED
+    # init_all_tables() <-- REMOVED
     conn = sqlite3.connect(DB_FILE)
     cur = conn.cursor()
     placeholders = ','.join('?' for _ in log_ids)
@@ -201,7 +202,7 @@ def delete_study_logs(username, log_ids):
     conn.close()
 
 def get_subjects(username):
-    # init_all_tables() # <-- REMOVED
+    # init_all_tables() <-- REMOVED
     conn = sqlite3.connect(DB_FILE)
     cur = conn.cursor()
     cur.execute("SELECT DISTINCT subject FROM study_logs WHERE username = ? ORDER BY subject ASC", (username,))
@@ -210,9 +211,9 @@ def get_subjects(username):
     return subjects
 
 
-# ---------------------- Exam Planner Functions (FIXED) ----------------------
+# ---------------------- Exam Planner Functions (CLEANED) ----------------------
 def add_exam(username, subject, exam_date, notes, difficulty):
-    # init_all_tables() # <-- REMOVED
+    # init_all_tables() <-- REMOVED
     conn = sqlite3.connect(DB_FILE)
     cur = conn.cursor()
     cur.execute("INSERT INTO exams (username, subject, exam_date, notes, difficulty) VALUES (?, ?, ?, ?, ?)",
@@ -221,7 +222,7 @@ def add_exam(username, subject, exam_date, notes, difficulty):
     conn.close()
 
 def get_user_exams(username):
-    # init_all_tables() # <-- REMOVED
+    # init_all_tables() <-- REMOVED
     conn = sqlite3.connect(DB_FILE)
     cur = conn.cursor()
     cur.execute("SELECT id, subject, exam_date, notes, difficulty FROM exams WHERE username = ?", (username,))
@@ -230,7 +231,7 @@ def get_user_exams(username):
     return exams
 
 def delete_exam(username, exam_id):
-    # init_all_tables() # <-- REMOVED
+    # init_all_tables() <-- REMOVED
     conn = sqlite3.connect(DB_FILE)
     cur = conn.cursor()
     cur.execute("DELETE FROM exams WHERE username = ? AND id = ?", (username, exam_id))
@@ -238,9 +239,9 @@ def delete_exam(username, exam_id):
     conn.close()
 
 
-# ---------------------- Report Functions (FIXED) ----------------------
+# ---------------------- Report Functions (CLEANED) ----------------------
 def save_report(username, report_name, report_data):
-    # init_all_tables() # <-- REMOVED
+    # init_all_tables() <-- REMOVED
     conn = sqlite3.connect(DB_FILE)
     cur = conn.cursor()
     cur.execute("INSERT INTO reports (username, report_name, report_data) VALUES (?, ?, ?)",
@@ -249,7 +250,7 @@ def save_report(username, report_name, report_data):
     conn.close()
 
 def get_reports(username):
-    # init_all_tables() # <-- REMOVED
+    # init_all_tables() <-- REMOVED
     conn = sqlite3.connect(DB_FILE)
     cur = conn.cursor()
     cur.execute("SELECT id, report_name, created_ts, report_data FROM reports WHERE username = ? ORDER BY created_ts DESC", (username,))
@@ -258,7 +259,7 @@ def get_reports(username):
     return reports
 
 def get_report_by_id(report_id):
-    # init_all_tables() # <-- REMOVED
+    # init_all_tables() <-- REMOVED
     conn = sqlite3.connect(DB_FILE)
     cur = conn.cursor()
     cur.execute("SELECT report_data FROM reports WHERE id = ?", (report_id,))
@@ -267,9 +268,9 @@ def get_report_by_id(report_id):
     return report_data[0] if report_data else None
 
 
-# ---------------------- Feedback Functions (FIXED) ----------------------
+# ---------------------- Feedback Functions (CLEANED) ----------------------
 def save_feedback(username, message, rating):
-    # init_all_tables() # <-- REMOVED
+    # init_all_tables() <-- REMOVED
     conn = sqlite3.connect(DB_FILE)
     cur = conn.cursor()
     cur.execute("INSERT INTO feedback (username, message, rating) VALUES (?, ?, ?)",
@@ -278,7 +279,7 @@ def save_feedback(username, message, rating):
     conn.close()
 
 def get_feedback():
-    # init_all_tables() # <-- REMOVED
+    # init_all_tables() <-- REMOVED
     conn = sqlite3.connect(DB_FILE)
     cur = conn.cursor()
     cur.execute("SELECT username, message, rating, created_ts FROM feedback ORDER BY created_ts DESC")
@@ -287,6 +288,5 @@ def get_feedback():
     return feedback_data
 
 
-# ---------------------- Initialize Tables on Import (KEEP) ----------------------
-# This is the ONLY place init_all_tables() should be called to ensure tables exist.
+# ---------------------- Initialize Tables on Import (THE ONLY CALL) ----------------------
 init_all_tables()
