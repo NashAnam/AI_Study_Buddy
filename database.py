@@ -1,7 +1,7 @@
 import sqlite3
 from datetime import datetime
 
-DB_FILE = "studybuddy.db"
+DB_FILE = "clean_db.sqlite"
 
 # ---------------------- Database Initialization ----------------------
 def init_all_tables():
