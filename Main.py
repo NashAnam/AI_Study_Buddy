@@ -73,7 +73,7 @@ def show_welcome():
         - 🧩 Other study tools  
     """)
 
-# --- Login Function (FIXED) ---
+# --- Login Function (FINAL FIX) ---
 def login():
     st.title("🔐 Login to AI Study Buddy")
     st.markdown("Please enter your credentials to continue.")
@@ -83,18 +83,23 @@ def login():
 
     if st.button("Login", key="login_button"):
         user = get_user(username)
+        # Check if user was found (user is not None)
         if user:
-            stored_hash = user[1]  # hashed password from DB
+            # user is a tuple: (username, password_hash)
+            stored_hash = user[1]  
+            
+            # --- CRITICAL: Call verification function ---
             if utils.verify_password(password, stored_hash):
                 st.session_state.logged_in = True
                 st.session_state.username = username
-                st.session_state.current_page = "Welcome"
+                st.session_state.current_page = "Welcome" # Set initial page
                 st.success("✅ Login successful")
-                # REMOVED st.experimental_rerun()
+                # NO st.experimental_rerun() here. Let Streamlit redraw the app.
             else:
                 st.error("❌ Invalid username or password.")
         else:
-            st.error("❌ User not found. Please contact admin to create an account.")
+            # This is hit if database.get_user returns None
+            st.error("❌ Invalid username or password.")
 
 # --- Main App Navigation ---
 def main_app():
