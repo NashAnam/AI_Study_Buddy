@@ -1,15 +1,14 @@
-# main.py
-# Run with: python -m streamlit run main.py
+# Main.py
+# Run with: streamlit run Main.py
 
 import streamlit as st
-import json
 import os
+import sqlite3
 from PIL import Image
-
-
-# Import database and initialize tables
 import database
-database.init_all_tables() 
+
+# --- Initialize Database Tables ---
+database.init_all_tables()
 
 # --- Page Config ---
 st.set_page_config(
@@ -33,11 +32,28 @@ if os.path.exists(banner_path):
 else:
     st.warning("Banner image not found.")
 
+# --- Database Helper for Login ---
+def check_user(username, password):
+    conn = sqlite3.connect("studybuddy.db")
+    cur = conn.cursor()
 
+    # Ensure users table exists
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT UNIQUE,
+            password TEXT
+        )
+    """)
+    conn.commit()
+
+    # Check if user exists
+    cur.execute("SELECT * FROM users WHERE username=? AND password=?", (username, password))
+    user = cur.fetchone()
+    conn.close()
+    return user
 
 # --- Login Function ---
-
-
 def login():
     st.title("🔐 Login to AI Study Buddy")
     st.markdown("Please enter your credentials to continue.")
@@ -46,29 +62,31 @@ def login():
     password = st.text_input("🔒 Password", type="password", key="login_password")
 
     if st.button("Login", key="login_button"):
-        try:
-            # Absolute path relative to the repo root
-            json_path = os.path.join(os.getcwd(), "users.json")
-            with open(json_path, "r") as f:
-                users = json.load(f)
+        if check_user(username.strip(), password):
+            st.session_state.logged_in = True
+            st.session_state.username = username.strip()
+            st.session_state.redirect_to_welcome = True
+            st.success("✅ Login successful")
+            st.rerun()
+        else:
+            st.error("❌ Invalid username or password.")
 
-            if username.strip() in users and password == users[username.strip()]["password"]:
-                st.session_state.logged_in = True
-                st.session_state.username = username.strip()
-                st.session_state.redirect_to_welcome = True
-                st.success("✅ Login successful")
-                st.rerun()
-            else:
-                st.error("❌ Invalid username or password.")
-        except FileNotFoundError:
-            st.error("⚠️ 'users.json' file not found.")
-        except Exception as e:
-            st.error(f"⚠️ Error reading users: {e}")
+    st.markdown("👉 New here? Please contact admin to create an account.")
 
-# --- Main UI ---
+# --- Welcome Page (after login) ---
 def show_main():
     st.title("📚 Welcome to AI Study Buddy")
-    st.markdown("Use the sidebar to explore tools like **Summarizer**, **Flashcards**, **Exam Planner**, and more.")
+    st.markdown("""
+        Use the sidebar to explore tools like:
+        - ✨ Summarizer  
+        - 📝 Flashcards  
+        - 📅 Exam Planner  
+        - 📊 Study Tracker  
+        - 💬 Chatbot Tutor  
+        - 🧩 Other study tools  
+
+        Navigate using the sidebar on the left.
+    """)
 
 # --- Access Control ---
 if not st.session_state.logged_in:
@@ -82,6 +100,6 @@ if not st.session_state.logged_in:
 else:
     if st.session_state.redirect_to_welcome:
         st.session_state.redirect_to_welcome = False
-        st.switch_page("pages/1_Welcome.py")
+        show_main()
     else:
         show_main()
