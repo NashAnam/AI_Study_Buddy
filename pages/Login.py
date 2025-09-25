@@ -31,6 +31,10 @@ if "logged_in" not in st.session_state:
 if "username" not in st.session_state:
     st.session_state.username = ""
 
+import streamlit as st
+from database import get_user
+import utils
+
 def login():
     st.title("🔐 Login to AI Study Buddy")
 
@@ -38,24 +42,18 @@ def login():
     password = st.text_input("Password", type="password", key="login_password")
 
     if st.button("Login", key="login_button"):
-        # Load user credentials from users.json
-        try:
-            with open("users.json", "r") as f:
-                users = json.load(f)
-              # ✅ moved here after loading
-        except Exception as e:
-            st.error(f"⚠️ Failed to load user data: {e}")
-            return
-
-        if username.strip() in users and users[username.strip()]["password"] == password:
-            st.session_state.logged_in = True
-            st.session_state.username = username.strip()
-            st.success("✅ Login successful")
-            st.switch_page("pages/1_Welcome.py")
-            return
-
-
-        st.error("❌ Invalid credentials. Please try again.")
+        user = get_user(username.strip())
+        if user:  # user exists
+            stored_hash = user[0]  # get password_hash from DB
+            if utils.verify_password(password, stored_hash):
+                st.session_state.logged_in = True
+                st.session_state.username = username.strip()
+                st.success("✅ Login successful")
+                st.experimental_rerun()  # reload to show welcome page
+            else:
+                st.error("❌ Invalid username or password.")
+        else:
+            st.error("❌ User not found. Contact admin.")
 
 
 # Show login or redirect

@@ -1,9 +1,9 @@
 import hashlib
 
-def hash_password(password):
-    """Return SHA256 hash of the password"""
+def hash_password(password: str) -> str:
+    """Return SHA256 hash of a password"""
     return hashlib.sha256(password.encode()).hexdigest()
 
-def verify_password(password, hashed):
-    """Verify if the password matches the hashed value"""
+def verify_password(password: str, hashed: str) -> bool:
+    """Verify a password against its SHA256 hash"""
     return hash_password(password) == hashed

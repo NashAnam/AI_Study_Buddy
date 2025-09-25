@@ -6,6 +6,7 @@ import os
 import sqlite3
 from PIL import Image
 import database
+import utils  # 👈 password hashing/verification
 
 # --- Initialize Database Tables ---
 database.init_all_tables()
@@ -33,7 +34,7 @@ else:
     st.warning("Banner image not found.")
 
 # --- Database Helper for Login ---
-def check_user(username, password):
+def get_user(username):
     conn = sqlite3.connect("studybuddy.db")
     cur = conn.cursor()
 
@@ -47,8 +48,8 @@ def check_user(username, password):
     """)
     conn.commit()
 
-    # Check if user exists
-    cur.execute("SELECT * FROM users WHERE username=? AND password=?", (username, password))
+    # Fetch user row
+    cur.execute("SELECT username, password FROM users WHERE username=?", (username,))
     user = cur.fetchone()
     conn.close()
     return user
@@ -62,16 +63,19 @@ def login():
     password = st.text_input("🔒 Password", type="password", key="login_password")
 
     if st.button("Login", key="login_button"):
-        if check_user(username.strip(), password):
-            st.session_state.logged_in = True
-            st.session_state.username = username.strip()
-            st.session_state.redirect_to_welcome = True
-            st.success("✅ Login successful")
-            st.rerun()
+        user = get_user(username.strip())
+        if user:
+            stored_hash = user[1]  # hashed password from DB
+            if utils.verify_password(password, stored_hash):
+                st.session_state.logged_in = True
+                st.session_state.username = username.strip()
+                st.session_state.redirect_to_welcome = True
+                st.success("✅ Login successful")
+                st.rerun()
+            else:
+                st.error("❌ Invalid username or password.")
         else:
-            st.error("❌ Invalid username or password.")
-
-    st.markdown("👉 New here? Please contact admin to create an account.")
+            st.error("❌ User not found. Please contact admin to create an account.")
 
 # --- Welcome Page (after login) ---
 def show_main():
