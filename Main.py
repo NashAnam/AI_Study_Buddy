@@ -7,8 +7,9 @@ from PIL import Image
 import database
 import utils  # password hashing/verification
 
-# --- Database Initialization (Called once on initial run) ---
-# Note: This is already called at the end of database.py, but including it here for clarity.
+# --- Database Initialization (Ensures tables are set up once) ---
+# Note: database.init_all_tables() is sufficient and is run when 'import database' runs.
+# Keep this line if you prefer it here, but it's redundant if in database.py
 # database.init_all_tables() 
 
 # --- Page Config ---
@@ -16,54 +17,37 @@ st.set_page_config(
     page_title="AI Study Buddy",
     page_icon="📚",
     layout="centered",
-    # Sidebar state will be managed by content
+    # initial_sidebar_state="collapsed" - Removed, we control visibility with CSS below
 )
 
 # --- Session State Initialization ---
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
+if "username" not in st.session_state:
+    st.session_state.username = None
+# State for which page is currently viewed, starts at Welcome
 if "current_page" not in st.session_state:
-    st.session_state.current_page = "Welcome" # Initialize a page state for navigation
+    st.session_state.current_page = "Welcome" 
 
 # --- Show Banner ---
 banner_path = os.path.join("assets", "banner.png")
 if os.path.exists(banner_path):
-    banner = Image.open(banner_path)
-    st.image(banner, use_column_width=True)
+    # Check if the image path is correct, assuming an 'assets' folder
+    # If the image is uploaded as a single file, you might need to adjust the path.
+    # We will assume the path is correct for now.
+    try:
+        banner = Image.open(banner_path)
+        st.image(banner, use_column_width=True)
+    except FileNotFoundError:
+        st.warning("Banner image not found in 'assets/banner.png'.")
 else:
-    st.warning("Banner image not found.")
+    st.warning("Banner image path not found.")
 
 # --- Database Helper for Login ---
 def get_user(username):
     """Fetch user from database for login."""
-    # Ensure database is initialized before fetching on first run
-    return database.get_user(username.strip()) # returns (username, password_hash) or None
-
-# --- Login Function ---
-def login():
-    st.title("🔐 Login to AI Study Buddy")
-    st.markdown("Please enter your credentials to continue.")
-
-    # Use callbacks for a cleaner state change, but direct check is also fine.
-    # We will use the direct check as in the original code.
-    username = st.text_input("👤 Username", key="login_username")
-    password = st.text_input("🔒 Password", type="password", key="login_password")
-
-    if st.button("Login", key="login_button"):
-        user = get_user(username)
-        if user:
-            stored_hash = user[1] # hashed password from DB
-            if utils.verify_password(password, stored_hash):
-                st.session_state.logged_in = True
-                st.session_state.username = username
-                st.session_state.current_page = "Welcome" # Set initial page after login
-                st.success("✅ Login successful")
-                # No need for st.experimental_rerun(), Streamlit handles the refresh
-                # and re-executes the script, hitting the 'else' block for main content.
-            else:
-                st.error("❌ Invalid username or password.")
-        else:
-            st.error("❌ User not found. Please contact admin to create an account.")
+    # database.get_user returns (username, password_hash) or None
+    return database.get_user(username.strip()) 
 
 # --- Placeholder Functions for Study Buddy Tools ---
 def show_summarizer():
@@ -74,7 +58,7 @@ def show_flashcards():
     st.title("📝 Flashcards")
     st.info(f"Welcome, {st.session_state.username}. Create or review flashcards!")
     
-# Add other tool functions (Exam Planner, Study Tracker, etc.) as placeholders
+# --- Welcome Page (after login) ---
 def show_welcome():
     st.title("📚 Welcome to AI Study Buddy")
     st.markdown(f"""
@@ -89,27 +73,51 @@ def show_welcome():
         - 🧩 Other study tools  
     """)
 
-# --- Main App Navigation (after login) ---
+# --- Login Function (FIXED) ---
+def login():
+    st.title("🔐 Login to AI Study Buddy")
+    st.markdown("Please enter your credentials to continue.")
+
+    username = st.text_input("👤 Username", key="login_username")
+    password = st.text_input("🔒 Password", type="password", key="login_password")
+
+    if st.button("Login", key="login_button"):
+        user = get_user(username)
+        if user:
+            stored_hash = user[1]  # hashed password from DB
+            if utils.verify_password(password, stored_hash):
+                st.session_state.logged_in = True
+                st.session_state.username = username
+                st.session_state.current_page = "Welcome"
+                st.success("✅ Login successful")
+                # REMOVED st.experimental_rerun()
+            else:
+                st.error("❌ Invalid username or password.")
+        else:
+            st.error("❌ User not found. Please contact admin to create an account.")
+
+# --- Main App Navigation ---
 def main_app():
     # 1. Sidebar Navigation
     st.sidebar.title("🧭 Navigation")
     
-    # Define pages
+    # Define pages and their functions
     pages = {
         "Welcome": show_welcome,
         "✨ Summarizer": show_summarizer,
         "📝 Flashcards": show_flashcards,
         # Add other pages here
-        # "📅 Exam Planner": show_exam_planner,
-        # "📊 Study Tracker": show_study_tracker,
     }
     
-    # Create a radio button for navigation and update session state
-    st.session_state.current_page = st.sidebar.radio(
+    # Create a radio button for navigation
+    selected_page = st.sidebar.radio(
         "Select a tool",
         list(pages.keys()),
-        index=list(pages.keys()).index(st.session_state.current_page) if st.session_state.current_page in pages else 0
+        # Use session state to manage selection
+        index=list(pages.keys()).index(st.session_state.current_page) 
+            if st.session_state.current_page in pages else 0
     )
+    st.session_state.current_page = selected_page
     
     # Add a logout button to the sidebar
     if st.sidebar.button("Logout", key="logout_button"):
@@ -126,7 +134,7 @@ def main_app():
     pages[st.session_state.current_page]()
 
 
-# --- Access Control ---
+# --- Access Control (FIXED) ---
 if not st.session_state.logged_in:
     # Use the custom CSS to hide the sidebar when not logged in
     st.markdown("""
@@ -138,6 +146,5 @@ if not st.session_state.logged_in:
     """, unsafe_allow_html=True)
     login()
 else:
-    # Sidebar is visible and main content is displayed
-    # This structure correctly handles the entire application flow after login.
+    # After login, the main app takes over
     main_app()
