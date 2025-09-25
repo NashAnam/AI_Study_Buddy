@@ -100,7 +100,6 @@ def init_all_tables():
 # ---------------------- User Functions (CLEANED) ----------------------
 def add_user(username, password_hash):
     """Add new user. Returns True if successful, False if username exists."""
-    # init_all_tables() <-- REMOVED
     conn = sqlite3.connect(DB_FILE)
     cur = conn.cursor()
     try:
@@ -114,7 +113,6 @@ def add_user(username, password_hash):
 
 def get_user(username):
     """Get username and password_hash for given username"""
-    # init_all_tables() <-- REMOVED
     conn = sqlite3.connect(DB_FILE)
     cur = conn.cursor()
     # We SELECT the username and hash needed for verification
@@ -126,7 +124,6 @@ def get_user(username):
 
 # ---------------------- Summarizer Functions (CLEANED) ----------------------
 def save_summary(username, original_text, summary_text):
-    # init_all_tables() <-- REMOVED
     conn = sqlite3.connect(DB_FILE)
     cur = conn.cursor()
     cur.execute("INSERT INTO summaries (username, original_text, summary_text) VALUES (?, ?, ?)",
