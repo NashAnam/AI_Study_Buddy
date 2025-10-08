@@ -1,5 +1,8 @@
 import streamlit as st
 
+# ✅ Page config must be first
+st.set_page_config(page_title="ℹ️ About", page_icon="ℹ️", layout="centered")
+
 # Hide default sidebar navigation
 st.markdown("""
 <style>
@@ -23,8 +26,6 @@ def custom_sidebar():
     st.sidebar.page_link("pages/Login.py", label="🔒 Logout")
 
 custom_sidebar()
-
-st.set_page_config(page_title="ℹ️ About")
 
 st.title("ℹ️ About AI Study Buddy")
 
