@@ -79,10 +79,8 @@ def check_authentication():
 def show_banner():
     banner_path = os.path.join("assets", "banner.png")
     if os.path.exists(banner_path):
-        try:
             banner = Image.open(banner_path)
-            st.image(banner, use_container_width=True)
-        except Exception as e:
+            st.image(banner, use_column_width=True)
             st.info("📚 AI Study Buddy - Your Learning Companion")
     else:
         st.markdown("""
