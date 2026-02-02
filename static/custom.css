@@ -1,0 +1,344 @@
+/* Global Font */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+html,
+body,
+[class*="css"] {
+    font-family: 'Inter', sans-serif;
+    color: #1e293b;
+    background-color: #f8fafc;
+}
+
+/* --- Navigation Button Styles --- */
+/* Helper to identify buttons in the navbar area might be hard, so we style global buttons to look uniform but premium */
+
+/* Primary Button (Active Nav Item & Main Actions) */
+.stButton>button[kind="primary"] {
+    background: linear-gradient(to right, #2563eb, #4f46e5) !important;
+    color: white !important;
+    border: none;
+    border-radius: 99px;
+    /* Pill shape for nav look */
+    padding: 0.5rem 1.2rem;
+    font-weight: 600;
+    box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.4);
+    transition: all 0.2s;
+}
+
+.stButton>button[kind="primary"]:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 8px -1px rgba(37, 99, 235, 0.5);
+}
+
+/* Secondary Button (Inactive Nav Items) */
+.stButton>button[kind="secondary"] {
+    background: transparent !important;
+    color: #64748b !important;
+    border: 1px solid transparent !important;
+    /* Remove border for cleaner look */
+    border-radius: 99px;
+    padding: 0.5rem 1.2rem;
+    font-weight: 500;
+}
+
+.stButton>button[kind="secondary"]:hover {
+    background: #f1f5f9 !important;
+    color: #1e293b !important;
+    transform: translateY(-1px);
+}
+
+/* Specific styling to fix the 'Logout' button if it looks too faint */
+/* We can target specific keys if needed, but the secondary style above works generally well for nav links */
+
+/* --- Container Styling for Nav --- */
+div[data-testid="stVerticalBlock"]>div[data-testid="stHorizontalBlock"]:first-child {
+    background: white;
+    padding: 0.75rem 1rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px -5px rgba(0, 0, 0, 0.05);
+    border: 1px solid #ffffff;
+    margin-bottom: 1rem;
+    align-items: center;
+}
+
+/* --- Generic Cards & UI --- */
+.ui-card {
+    background: white;
+    padding: 1rem;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+    border: 1px solid #e2e8f0;
+    margin-bottom: 1rem;
+}
+
+/* --- Responsiveness & Spacing --- */
+@media (max-width: 768px) {
+    .ui-card {
+        padding: 0.75rem;
+        margin-bottom: 0.75rem;
+    }
+    div[data-testid="stVerticalBlock"]>div[data-testid="stHorizontalBlock"]:first-child {
+        padding: 0.5rem;
+        margin-bottom: 0.75rem;
+    }
+}
+
+.ui-card h3 {
+    margin-top: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.ui-card p {
+    color: #64748b;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+}
+
+/* --- Badges --- */
+.badge-ai {
+    background-color: #eff6ff;
+    color: #2563eb;
+    border: 1px solid #bfdbfe;
+    padding: 4px 10px;
+    border-radius: 99px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+/* --- Planner Task Cards --- */
+.task-card {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 1rem 1rem 1rem 1.5rem;
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 1rem;
+    transition: all 0.2s;
+}
+
+.task-card:hover {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    transform: translateY(-1px);
+}
+
+.task-color-strip {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 6px;
+}
+
+/* --- Priority Badges --- */
+.badge-high {
+    background: #fee2e2;
+    color: #b91c1c;
+    border: 1px solid #fecaca;
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+.badge-medium {
+    background: #fef9c3;
+    color: #a16207;
+    border: 1px solid #fde047;
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+.badge-low {
+    background: #dcfce7;
+    color: #15803d;
+    border: 1px solid #bbf7d0;
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+/* --- Sidebar Calendar Widget --- */
+.calendar-widget {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 1.5rem;
+    text-align: center;
+}
+
+.cal-day-big {
+    font-size: 2.5rem;
+    font-weight: 700;
+    line-height: 1;
+    margin: 0.5rem 0;
+    color: #1e293b;
+}
+
+.cal-month {
+    font-size: 0.9rem;
+    color: #64748b;
+    font-weight: 500;
+}
+
+.cal-weekday {
+    font-size: 1rem;
+    color: #64748b;
+    margin-bottom: 1rem;
+}
+
+/* --- Summarizer/Other Retained Styles --- */
+.template-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-bottom: 0.8rem;
+    text-align: left;
+    width: 100%;
+}
+
+.template-btn:hover {
+    background-color: #f8fafc;
+    border-color: #cbd5e1;
+}
+
+.summary-card {
+    background: linear-gradient(to bottom right, #f0fdf4, #ecfdf5);
+    border: 1px solid #bbf7d0;
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+/* --- Dashboard Retained --- */
+.hero-card {
+    background: linear-gradient(to bottom right, #2563eb, #4f46e5, #9333ea);
+    color: white;
+    border-radius: 20px;
+    padding: 2.5rem;
+    box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.4);
+    margin-bottom: 2rem;
+}
+
+.hero-card h1 {
+    color: white !important;
+    font-weight: 800;
+    font-size: 2.5rem;
+}
+
+.stat-card,
+.action-card {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+.task-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1rem;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    background: white;
+    margin-bottom: 0.75rem;
+}
+
+/* --- Tracker Styles --- */
+.progress-track {
+    background: #f1f5f9;
+    height: 8px;
+    border-radius: 99px;
+    width: 100%;
+    overflow: hidden;
+}
+
+.progress-fill-blue {
+    background: #3b82f6;
+    height: 100%;
+}
+
+.progress-fill-purple {
+    background: #a855f7;
+    height: 100%;
+}
+
+.progress-fill-green {
+    background: #22c55e;
+    height: 100%;
+}
+
+.progress-fill-orange {
+    background: #f97316;
+    height: 100%;
+}
+
+.progress-fill-red {
+    background: #ef4444;
+    height: 100%;
+}
+
+.bar-chart-container {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    height: 180px;
+    gap: 8px;
+    padding-top: 1rem;
+}
+
+.bar-column {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    height: 100%;
+    justify-content: flex-end;
+}
+
+.bar-visual {
+    width: 100%;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    transition: all 0.3s;
+}
+
+.bar-visual:hover {
+    opacity: 0.8;
+}
+
+.bar-label {
+    font-size: 0.8rem;
+    color: #64748b;
+}
+
+.achieve-item {
+    display: flex;
+    align-items: start;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    background: linear-gradient(to bottom right, #f8fafc, #ffffff);
+    margin-bottom: 0.75rem;
+}
