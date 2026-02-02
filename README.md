@@ -52,78 +52,39 @@ Students face several challenges in their learning journey:
 
 ## ✨ Features
 
-### 🤖 **AI-Powered Summarization**
-- Instantly summarize long texts, PDFs, and documents using **BART** (Facebook's state-of-the-art transformer model)
-- Supports chunked processing for documents exceeding 1024 tokens
-- GPU acceleration for faster processing
-- Download summaries as text files
-- View history of all past summaries
+### 📄 **AI-Powered Summarizer**
+- Instantly summarize any length of text, from single sentences to massive PDFs.
+- **Intelligent Chunking**: Seamlessly processes documents exceeding model limits using a poly-chunking strategy.
+- **Visual Feedback**: Real-time progress tracking with AI status indicators.
+- **Keywords Extraction**: Automatically identifies key topics using the YAKE algorithm.
+- **Built-in Copy**: Integrated code blocks for one-click summary copying.
 
 ![Summarizer Demo](assets/demo_summarizer.png)
 
-### 🧠 **Smart Flashcard Generator**
-- Convert study material into interactive Q&A flashcards
-- Create, edit, and delete flashcards
-- Review mode with flip animations
-- Persistent storage for all your flashcards
-- Bulk operations support
+### 📅 **Smart Exam Planner**
+- **Unified Interface**: Subject and topic merged for faster task entry.
+- **Flexible Scheduling**: Accepts any time format (e.g., "9 AM", "Morning", "23:00").
+- **Integrated Actions**: One-click completion and deletion directly from the card.
+- **Dynamic Tracking**: Real-time "Tasks Due This Week" counter.
 
-![Flashcard Demo](assets/demo_flashcard.png)
-
-### 📅 **Exam Planner & Scheduler**
-- Add upcoming exams with dates and difficulty levels
-- Organize study schedules by subject
-- Set priorities and add notes
-- Visual calendar view
-- Countdown timers for exams
-
-### 📊 **Study Tracker & Analytics**
-- Log study sessions with subject and duration
-- Track daily, weekly, and monthly study patterns
-- Visualize progress with interactive charts (Plotly)
-- Subject-wise breakdown and statistics
-- Identify peak productivity hours
-
-### 📈 **Performance Reports**
-- Generate comprehensive study reports
-- Data-driven insights and recommendations
-- Export reports as PDFs
-- Track improvement over time
-- Subject-wise performance analysis
-
-### 🔐 **Secure User Management**
-- Bcrypt password hashing (industry-standard security)
-- User authentication and session management
-- Isolated user data with SQL parameterized queries
-- Secure login/registration system
+### 🎯 **Advanced Study Tracker**
+- **Interactive Timer**: Start/Stop focused sessions that log directly to your history.
+- **Automated Progress**: Real-time subject-wise breakdown chart.
+- **Gamified Achievements**: Earn badges like "On Fire!" and "Knowledge Seeker" as you study.
 
 ---
 
 ## 💻 Tech Stack
 
 ### **Core Technologies**
-- **Python 3.8+** - Primary programming language
-- **Streamlit** - Modern web framework for data apps
-- **SQLite** - Lightweight database for data persistence
+- **Python 3.13+** - Primary programming language
+- **Streamlit 1.50.1** - High-performance web framework
+- **SQLite** - Robust data persistence with automated migrations
 
-### **AI/ML Libraries**
-- **🤗 Transformers** - Hugging Face library for NLP models
-- **PyTorch** - Deep learning framework with GPU support
-- **BART (facebook/bart-large-cnn)** - Pre-trained summarization model
-
-### **Data Processing & Visualization**
-- **Pandas** - Data manipulation and analysis
-- **NumPy** - Numerical computing
-- **Plotly** - Interactive visualizations
-- **Matplotlib** - Statistical plotting
-
-### **Document Processing**
-- **PyMuPDF (fitz)** - PDF text extraction
-- **ReportLab** - PDF report generation
-
-### **Security**
-- **bcrypt** - Password hashing and verification
-- **hashlib** - Additional cryptographic functions
+### **AI/ML Infrastructure**
+- **🤗 Transformers & PyTorch** - Powering the BART-large-cnn summarization engine
+- **YAKE** - Statistical keyword extraction
+- **PyMuPDF & python-docx** - High-fidelity document parsing
 
 ---
 
@@ -132,38 +93,24 @@ Students face several challenges in their learning journey:
 ```
 ai_study_buddy/
 │
-├── app.py                      # Main application entry point
-├── database.py                 # Database operations & schema
-├── utils.py                    # Utility functions (password hashing, etc.)
-├── requirements.txt            # Python dependencies
-├── .env.example               # Environment configuration template
+├── app.py                      # Dashboard & Authentication
+├── database.py                 # DB Schema & Automated Migrations
+├── utils.py                    # AI Pipelines & Core Logic
+├── requirements.txt            # Project Dependencies
 │
-├── components/                 # Reusable UI components
-│   ├── __init__.py
-│   └── sidebar.py             # Shared navigation sidebar
+├── components/                 
+│   └── navbar.py              # Fluid Navigation Overhaul
 │
-├── pages/                      # Streamlit multi-page app
-│   ├── 1_Welcome.py           # Landing page
-│   ├── 2_Summarizer.py        # Text/PDF summarization
-│   ├── 3_ExamPlanner.py       # Exam scheduling
-│   ├── 4_StudyTracker.py      # Study session logging
-│   ├── 5_Flashcard.py         # Flashcard management
-│   ├── 6_Report.py            # Analytics & reports
-│   ├── 7_FAQ.py               # Frequently asked questions
-│   ├── 8_About.py             # About the project
-│   └── 9_Feedback.py          # User feedback form
+├── pages/                      
+│   ├── Summarizer.py          # AI Text & File Analysis
+│   ├── ExamPlanner.py         # Smart Task Management
+│   ├── StudyTracker.py        # Progress Logging & Timer
+│   └── Report.py              # Visual Analytics Hub
 │
-├── stud_modules/               # Backend modules
-│   ├── summarizer.py          # AI summarization logic
-│   ├── tracker.py             # Study tracking functions
-│   ├── planner.py             # Exam planning utilities
-│   └── auth.py                # Authentication helpers
+├── static/                     
+│   └── custom.css             # Premium Responsive Styling
 │
-├── assets/                     # Static files
-│   ├── banner.png             # Application banner
-│   └── demo_*.png             # Demo screenshots
-│
-└── final_clean_db.sqlite      # SQLite database
+└── study_buddy.sqlite          # Local Data Store
 ```
 
 ---
