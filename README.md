@@ -1,7 +1,3 @@
-<div align="center">
-
-![AI Study Buddy Banner](assets/banner.png)
-
 # 📚 AI Study Buddy
 
 ### Your Intelligent Learning Companion Powered by AI
@@ -43,7 +39,6 @@ Students face several challenges in their learning journey:
 
 **AI Study Buddy** solves these problems by providing an all-in-one AI-powered platform that helps students:
 ✅ Summarize lengthy documents instantly using state-of-the-art NLP models  
-✅ Generate interactive flashcards automatically from study material  
 ✅ Track study sessions and visualize progress with analytics  
 ✅ Plan exams with intelligent scheduling and reminders  
 ✅ Get personalized insights and performance reports  
@@ -59,7 +54,6 @@ Students face several challenges in their learning journey:
 - **Keywords Extraction**: Automatically identifies key topics using the YAKE algorithm.
 - **Built-in Copy**: Integrated code blocks for one-click summary copying.
 
-![Summarizer Demo](assets/demo_summarizer.png)
 
 ### 📅 **Smart Exam Planner**
 - **Unified Interface**: Subject and topic merged for faster task entry.
@@ -178,7 +172,6 @@ ai_study_buddy/
 
 ### **Tips for Best Results**
 - 📄 For best summarization results, use well-formatted text or PDFs
-- 🧠 Create flashcards with clear, concise questions
 - ⏱️ Log study sessions immediately after completing them
 - 📅 Update exam dates regularly for accurate planning
 - 📊 Review reports weekly to track improvement
@@ -218,16 +211,14 @@ This project showcases my proficiency in:
 ## 🛠️ Future Enhancements
 
 ### **Planned Features**
-- [ ] Spaced repetition algorithm for flashcards (Leitner system)
 - [ ] Multi-language support for summarization
-- [ ] Voice input for notes and flashcards
+- [ ] Voice input for notes and search
 - [ ] Mobile app (React Native/Flutter)
 - [ ] Collaborative study groups
 - [ ] Integration with Google Calendar
 - [ ] OCR support for handwritten notes
 - [ ] AI chatbot for Q&A assistance
 - [ ] Dark mode theme
-- [ ] Export data to Anki format
 
 ### **Technical Improvements**
 - [ ] Migrate to PostgreSQL for production
@@ -344,8 +335,6 @@ If you find this project helpful, please consider giving it a ⭐ on GitHub!
 
 ---
 
-<div align="center">
-
 **Made with ❤️ for students worldwide**
 
 ### 🌟 GSoC 2026 Portfolio Project 🌟
@@ -355,5 +344,3 @@ If you find this project helpful, please consider giving it a ⭐ on GitHub!
 *If you're a GSoC organization looking for passionate contributors, let's connect!*
 
 [![Star this repo](https://img.shields.io/github/stars/NashAnam/AI_Study_Buddy?style=social)](https://github.com/NashAnam/AI_Study_Buddy)
-
-</div>
