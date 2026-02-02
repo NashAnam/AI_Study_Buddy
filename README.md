@@ -198,7 +198,7 @@ This project showcases my proficiency in:
 - 🔐 **Authentication**: Bcrypt password hashing (12 rounds)
 - 🛡️ **SQL Injection Prevention**: Parameterized queries
 - ✅ **Input Validation**: Comprehensive data validation
-- � **Logging**: Structured logging for debugging
+-  **Logging**: Structured logging for debugging
 
 ### **Full-Stack Development**
 - 🌐 **Web Framework**: Streamlit for interactive UI
@@ -206,85 +206,8 @@ This project showcases my proficiency in:
 - 📊 **Data Visualization**: Plotly and Matplotlib charts
 - 🎨 **UI/UX**: Clean, intuitive interface design
 
----
 
-## 🛠️ Future Enhancements
 
-### **Planned Features**
-- [ ] Multi-language support for summarization
-- [ ] Voice input for notes and search
-- [ ] Mobile app (React Native/Flutter)
-- [ ] Collaborative study groups
-- [ ] Integration with Google Calendar
-- [ ] OCR support for handwritten notes
-- [ ] AI chatbot for Q&A assistance
-- [ ] Dark mode theme
-
-### **Technical Improvements**
-- [ ] Migrate to PostgreSQL for production
-- [ ] Add comprehensive unit tests
-- [ ] Implement CI/CD pipeline
-- [ ] Docker containerization
-- [ ] REST API for mobile apps
-- [ ] Redis caching for performance
-- [ ] WebSocket for real-time updates
-
----
-
-## 🤝 Contributing
-
-Contributions are **welcome and encouraged**! This project is ideal for:
-- 🎓 Students learning AI/ML and web development
-- 💻 GSoC participants looking for meaningful projects
-- 🌟 Open source enthusiasts wanting to help students worldwide
-
-### **How to Contribute**
-
-1. **Fork the repository**
-2. **Create a feature branch** (`git checkout -b feature/AmazingFeature`)
-3. **Commit your changes** (`git commit -m 'Add some AmazingFeature'`)
-4. **Push to the branch** (`git push origin feature/AmazingFeature`)
-5. **Open a Pull Request**
-
-### **Contribution Ideas**
-- 🐛 Fix bugs or improve error handling
-- ✨ Add new features from the roadmap
-- 📝 Improve documentation
-- 🎨 Enhance UI/UX design
-- 🧪 Write tests
-- 🌍 Add translations
-
----
-
-## 🔐 Security Features
-
-- ✅ **Bcrypt password hashing** with salt (12 rounds)
-- ✅ **Parameterized SQL queries** to prevent SQL injection
-- ✅ **User session management** with Streamlit
-- ✅ **Input validation** and sanitization
-- ⚠️ **Production Recommendations**:
-  - Use HTTPS for deployment
-  - Implement rate limiting for login attempts
-  - Add CSRF protection
-  - Use environment variables for secrets
-
----
-
-## 📊 Performance
-
-- **Model Loading**: Singleton pattern ensures model loads only once
-- **GPU Acceleration**: Automatic detection and usage of CUDA-enabled GPUs
-- **Chunked Processing**: Handles documents of any length efficiently
-- **Database Indexing**: Optimized queries for fast data retrieval
-- **Caching**: Streamlit's built-in caching for improved performance
-
----
-
-## 📄 License
-
-This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
-
----
 
 ## 👩‍💻 About Me - GSoC 2026 Aspirant
 
@@ -294,38 +217,13 @@ JNTU Hyderabad
 
 🎯 **GSoC 2026 Aspirant** passionate about AI/ML and open source  
 💻 Building real-world projects to solve student challenges  
-� Eager to contribute to impactful open source organizations  
+ Eager to contribute to impactful open source organizations  
 
 ### **Connect With Me**
-- �📧 Email: [your-email@example.com](mailto:your-email@example.com)
-- 💼 LinkedIn: [Your LinkedIn](https://linkedin.com/in/yourprofile)
+- 📧 Email: [nashrahanam36@gmail.com](mailto:nashrahanam36@gmail.com)
+- 💼 LinkedIn: [Nashrah Anam](https://www.linkedin.com/in/nashrah-anam-351a322a0/)
 - 🐙 GitHub: [@NashAnam](https://github.com/NashAnam)
-- 📝 Portfolio: [Your Portfolio](https://yourportfolio.com)
-
-### **Why I'm a Great GSoC Candidate**
-✅ Strong foundation in AI/ML and software engineering  
-✅ Proven ability to build complete, production-ready applications  
-✅ Excellent documentation and communication skills  
-✅ Passionate about learning and contributing to open source  
-✅ Self-motivated and able to work independently  
-
----
-
-## 🙏 Acknowledgments
-
-- [Hugging Face](https://huggingface.co/) for the Transformers library
-- [Streamlit](https://streamlit.io/) for the amazing web framework
-- [Facebook AI](https://ai.facebook.com/) for the BART model
-- All contributors and users of this project
-
----
-
-## 📞 Support
-
-If you encounter any issues or have questions:
-- 🐛 [Open an issue](https://github.com/NashAnam/AI_Study_Buddy/issues)
-- 💬 [Start a discussion](https://github.com/NashAnam/AI_Study_Buddy/discussions)
-- 📧 Email the developer
+- 📝 Portfolio: [My Portfolio](https://nashanam.github.io/portfolio/)
 
 ---
 
@@ -339,8 +237,5 @@ If you find this project helpful, please consider giving it a ⭐ on GitHub!
 
 ### 🌟 GSoC 2026 Portfolio Project 🌟
 
-**Demonstrating AI/ML expertise • Clean code architecture • Real-world impact**
-
-*If you're a GSoC organization looking for passionate contributors, let's connect!*
 
 [![Star this repo](https://img.shields.io/github/stars/NashAnam/AI_Study_Buddy?style=social)](https://github.com/NashAnam/AI_Study_Buddy)
