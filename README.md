@@ -7,11 +7,9 @@
 [![Transformers](https://img.shields.io/badge/🤗%20Transformers-4.36.0-yellow.svg)](https://huggingface.co/transformers/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Beginner Friendly](https://img.shields.io/badge/Beginner-Friendly-success.svg)](https://github.com/NashAnam/AI_Study_Buddy)
-[![GSoC 2026](https://img.shields.io/badge/GSoC-2026%20Ready-orange.svg)](https://summerofcode.withgoogle.com/)
 
-> **Built by a GSoC 2026 Aspirant** | Demonstrating AI/ML skills, clean code architecture, and real-world problem solving
+> **An Intelligent Learning Companion** | Demonstrating AI/ML skills, clean code architecture, and real-world problem solving
 
-**[View Demo](#) • [Documentation](#installation) • [Report Bug](https://github.com/NashAnam/AI_Study_Buddy/issues) • [Request Feature](https://github.com/NashAnam/AI_Study_Buddy/issues)**
 
 </div>
 
@@ -19,7 +17,7 @@
 
 ## 🎯 Why This Project?
 
-As a **GSoC 2026 aspirant**, I built this project to demonstrate:
+I built this project to demonstrate:
 - 🤖 **AI/ML Expertise**: Implementing transformer models (BART) for real-world NLP tasks
 - 🏗️ **Software Architecture**: Clean, modular code with separation of concerns
 - 🔐 **Security Best Practices**: Industry-standard bcrypt hashing, SQL injection prevention
@@ -198,7 +196,7 @@ This project showcases my proficiency in:
 - 🔐 **Authentication**: Bcrypt password hashing (12 rounds)
 - 🛡️ **SQL Injection Prevention**: Parameterized queries
 - ✅ **Input Validation**: Comprehensive data validation
-- � **Logging**: Structured logging for debugging
+-  **Logging**: Structured logging for debugging
 
 ### **Full-Stack Development**
 - 🌐 **Web Framework**: Streamlit for interactive UI
@@ -209,24 +207,23 @@ This project showcases my proficiency in:
 
 
 
-## 👩‍💻 About Me - GSoC 2026 Aspirant
+## 👩‍💻 About Me
 
 **Nashrah Anam Fathima**  
 Department of AI & Data Science  
 JNTU Hyderabad
 
-🎯 **GSoC 2026 Aspirant** passionate about AI/ML and open source  
+🎯 **Aspirant** passionate about AI/ML and open source  
 💻 Building real-world projects to solve student challenges  
-� Eager to contribute to impactful open source organizations  
+ Eager to contribute to impactful open source organizations  
 
 ### **Connect With Me**
-- 📧 Email: (mailto:nashrahanam36@gmail.com)
-- 💼 LinkedIn: (https://www.linkedin.com/in/nashrah-anam-351a322a0/)
-- 🐙 GitHub: (https://github.com/NashAnam)
-- 📝 Portfolio: (https://nashanam.github.io/portfolio/)
+- 📧 Email: [nashrahanam36@gmail.com](mailto:nashrahanam36@gmail.com)
+- 💼 LinkedIn: [Nashrah Anam](https://www.linkedin.com/in/nashrah-anam-351a322a0/)
+- 🐙 GitHub: [@NashAnam](https://github.com/NashAnam)
+- 📝 Portfolio: [My Portfolio](https://nashanam.github.io/portfolio/)
 
 ---
-
 
 ## ⭐ Star History
 
@@ -236,10 +233,7 @@ If you find this project helpful, please consider giving it a ⭐ on GitHub!
 
 **Made with ❤️ for students worldwide**
 
-### 🌟 GSoC 2026 Portfolio Project 🌟
+### 🌟 Portfolio Project 🌟
 
-**Demonstrating AI/ML expertise • Clean code architecture • Real-world impact**
-
-*If you're a GSoC organization looking for passionate contributors, let's connect!*
 
 [![Star this repo](https://img.shields.io/github/stars/NashAnam/AI_Study_Buddy?style=social)](https://github.com/NashAnam/AI_Study_Buddy)
