@@ -1,289 +1,333 @@
 import sqlite3
-from datetime import datetime
+import os
+import utils
+import logging
+from datetime import datetime, timedelta, date
 
-DB_FILE = "clean_db.sqlite"
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
-# ---------------------- Database Initialization ----------------------
+DB_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "study_buddy.sqlite")
+
+def get_db_connection():
+    conn = sqlite3.connect(DB_FILE)
+    conn.row_factory = sqlite3.Row
+    return conn
+
 def init_all_tables():
-    """Initializes all necessary database tables if they don't exist."""
-    conn = sqlite3.connect(DB_FILE)
-    cur = conn.cursor()
-
-    # 1. Users table
-    cur.execute("""
-    CREATE TABLE IF NOT EXISTS users (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        username TEXT UNIQUE NOT NULL,
-        password_hash TEXT NOT NULL,
-        created_ts TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    )
-    """)
-
-    # Add default admin user (username: admin, password: admin123)
-    # SHA256 hash of "admin123" is 8c6976e5b5410415bde908bd4dee15dfb16b1f77f64f63b8a46f8f7f0ee6c2ab
-    cur.execute("INSERT OR IGNORE INTO users (username, password_hash) VALUES (?, ?)",
-                ("admin", "8c6976e5b5410415bde908bd4dee15dfb16b1f77f64f63b8a46f8f7f0ee6c2ab")) 
-
-    # 2. Summaries table
-    cur.execute("""
-    CREATE TABLE IF NOT EXISTS summaries (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        username TEXT NOT NULL,
-        original_text TEXT NOT NULL,
-        summary_text TEXT NOT NULL,
-        created_ts TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    )
-    """)
-
-    # 3. Flashcards table
-    cur.execute("""
-    CREATE TABLE IF NOT EXISTS flashcards (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        username TEXT NOT NULL,
-        question TEXT NOT NULL,
-        answer TEXT NOT NULL,
-        created_ts TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    )
-    """)
-
-    # 4. Study logs table
-    cur.execute("""
-    CREATE TABLE IF NOT EXISTS study_logs (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        username TEXT NOT NULL,
-        subject TEXT,
-        duration_minutes INTEGER,
-        started_at TIMESTAMP,
-        created_ts TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    )
-    """)
-
-    # 5. Exams table
-    cur.execute("""
-    CREATE TABLE IF NOT EXISTS exams (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        username TEXT NOT NULL,
-        subject TEXT NOT NULL,
-        exam_date TEXT NOT NULL,
-        notes TEXT,
-        difficulty TEXT,
-        created_ts TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    )
-    """)
-
-    # 6. Reports table
-    cur.execute("""
-    CREATE TABLE IF NOT EXISTS reports (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        username TEXT NOT NULL,
-        report_name TEXT NOT NULL,
-        report_data TEXT NOT NULL,
-        created_ts TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    )
-    """)
-
-    # 7. Feedback table
-    cur.execute("""
-    CREATE TABLE IF NOT EXISTS feedback (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        username TEXT NOT NULL,
-        message TEXT NOT NULL,
-        rating INTEGER,
-        created_ts TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    )
-    """)
-
-    conn.commit()
-    conn.close()
-
-
-# ---------------------- User Functions (CLEANED) ----------------------
-def add_user(username, password_hash):
-    """Add new user. Returns True if successful, False if username exists."""
-    conn = sqlite3.connect(DB_FILE)
-    cur = conn.cursor()
     try:
-        cur.execute("INSERT INTO users (username, password_hash) VALUES (?, ?)", (username, password_hash))
-        conn.commit()
-        return True
-    except sqlite3.IntegrityError:
-        return False
-    finally:
+        conn = get_db_connection()
+        with conn:
+            # Users
+            conn.execute("""CREATE TABLE IF NOT EXISTS users (
+                id INTEGER PRIMARY KEY AUTOINCREMENT, 
+                username TEXT UNIQUE NOT NULL, 
+                password_hash TEXT NOT NULL, 
+                created_ts TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )""")
+            
+            # Tasks - Ensure all columns exist (Migration)
+            conn.execute("""CREATE TABLE IF NOT EXISTS tasks (
+                id INTEGER PRIMARY KEY AUTOINCREMENT, 
+                username TEXT NOT NULL, 
+                title TEXT NOT NULL, 
+                subject TEXT, 
+                due_date TIMESTAMP, 
+                time_str TEXT,
+                priority TEXT DEFAULT 'Medium', 
+                completed BOOLEAN DEFAULT 0,
+                created_ts TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )""")
+            
+            # Migration: Add columns if they don't exist
+            try:
+                conn.execute("ALTER TABLE tasks ADD COLUMN time_str TEXT")
+            except: pass
+            try:
+                conn.execute("ALTER TABLE tasks ADD COLUMN completed BOOLEAN DEFAULT 0")
+            except: pass
+            try:
+                conn.execute("ALTER TABLE tasks ADD COLUMN created_ts TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+            except: pass
+
+            # Summaries
+            conn.execute("""CREATE TABLE IF NOT EXISTS summaries (
+                id INTEGER PRIMARY KEY AUTOINCREMENT, 
+                username TEXT NOT NULL, 
+                title TEXT,
+                original_text TEXT, 
+                summary_text TEXT, 
+                created_ts TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )""")
+            
+            # Migration for summaries
+            summary_cols = ["title", "original_text", "summary_text", "created_ts"]
+            for col in summary_cols:
+                try:
+                    conn.execute(f"ALTER TABLE summaries ADD COLUMN {col} TEXT")
+                except: pass
+            
+            # Study Logs
+            conn.execute("""CREATE TABLE IF NOT EXISTS study_logs (
+                id INTEGER PRIMARY KEY AUTOINCREMENT, 
+                username TEXT NOT NULL, 
+                subject TEXT, 
+                duration_minutes INTEGER, 
+                started_at TIMESTAMP, 
+                created_ts TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )""")
+
+            # Create Admin
+            cur = conn.cursor()
+            cur.execute("SELECT COUNT(*) FROM users WHERE username = 'admin'")
+            if cur.fetchone()[0] == 0:
+                conn.execute("INSERT INTO users (username, password_hash) VALUES (?, ?)", 
+                             ("admin", utils.hash_password("admin123")))
         conn.close()
+    except Exception as e:
+        logger.error(f"Init Error: {e}")
+
+# --- User Auth ---
+def add_user(username, password_hash):
+    try:
+        conn = get_db_connection()
+        with conn:
+            conn.execute("INSERT INTO users (username, password_hash) VALUES (?, ?)", (username, password_hash))
+        conn.close()
+        return True
+    except: return False
 
 def get_user(username):
-    """Get username and password_hash for given username"""
-    conn = sqlite3.connect(DB_FILE)
-    cur = conn.cursor()
-    # We SELECT the username and hash needed for verification
-    cur.execute("SELECT username, password_hash FROM users WHERE username = ?", (username,))
-    user = cur.fetchone()
-    conn.close()
-    return user  # returns (username, password_hash) or None
+    try:
+        conn = get_db_connection()
+        user = conn.execute("SELECT username, password_hash FROM users WHERE username = ?", (username,)).fetchone()
+        conn.close()
+        return user
+    except: return None
 
+# --- Task Management ---
+def add_task(username, title, subject, due_date, time_str, priority):
+    try:
+        # Convert date to string if it's an object
+        if hasattr(due_date, 'isoformat'):
+            due_date = due_date.isoformat()
+            
+        conn = get_db_connection()
+        with conn:
+            conn.execute(
+                "INSERT INTO tasks (username, title, subject, due_date, time_str, priority, completed) VALUES (?, ?, ?, ?, ?, ?, 0)",
+                (username, title, subject, due_date, time_str, priority)
+            )
+        conn.close()
+        return True
+    except Exception as e:
+        logger.error(f"Add Task Error: {e}")
+        return False
 
-# ---------------------- Summarizer Functions (CLEANED) ----------------------
-def save_summary(username, original_text, summary_text):
-    conn = sqlite3.connect(DB_FILE)
-    cur = conn.cursor()
-    cur.execute("INSERT INTO summaries (username, original_text, summary_text) VALUES (?, ?, ?)",
-                (username, original_text, summary_text))
-    conn.commit()
-    conn.close()
+def get_tasks(username):
+    try:
+        conn = get_db_connection()
+        tasks = conn.execute("SELECT * FROM tasks WHERE username = ? ORDER BY due_date ASC", (username,)).fetchall()
+        conn.close()
+        return tasks
+    except: return []
 
-def get_user_summaries(username):
-    # init_all_tables() <-- REMOVED
-    conn = sqlite3.connect(DB_FILE)
-    cur = conn.cursor()
-    cur.execute("SELECT original_text, summary_text, created_ts FROM summaries WHERE username = ?", (username,))
-    summaries = cur.fetchall()
-    conn.close()
-    return summaries
+def get_todays_tasks(username):
+    try:
+        tasks = get_tasks(username)
+        today_str = date.today().isoformat()
+        # Filter for tasks due today or previously overdue & not completed? 
+        # For dashboard "Today's Schedule", usually strictly today.
+        filtered = []
+        for t in tasks:
+            # Handle due_date being potentially date object or string? 
+            # Sqlite returns string usually.
+            d_val = t['due_date']
+            if not d_val: continue
+            # If d_val is full timestamp string "2026-02-02 00:00:00" or date "2026-02-02"
+            if str(d_val).startswith(today_str):
+                filtered.append(t)
+        return filtered
+    except Exception as e:
+        logger.error(f"Todays Tasks Error: {e}")
+        return []
 
+def update_task_status(task_id, completed):
+    try:
+        conn = get_db_connection()
+        with conn:
+            conn.execute("UPDATE tasks SET completed = ? WHERE id = ?", (1 if completed else 0, task_id))
+        conn.close()
+        return True
+    except: return False
 
-# ---------------------- Flashcard Functions (CLEANED) ----------------------
-def save_flashcard(username, question, answer):
-    # init_all_tables() <-- REMOVED
-    conn = sqlite3.connect(DB_FILE)
-    cur = conn.cursor()
-    cur.execute("INSERT INTO flashcards (username, question, answer) VALUES (?, ?, ?)",
-                (username, question, answer))
-    conn.commit()
-    conn.close()
+def delete_task(task_id):
+    try:
+        conn = get_db_connection()
+        with conn:
+            conn.execute("DELETE FROM tasks WHERE id = ?", (task_id,))
+        conn.close()
+        return True
+    except: return False
 
-def get_flashcards(username):
-    # init_all_tables() <-- REMOVED
-    conn = sqlite3.connect(DB_FILE)
-    cur = conn.cursor()
-    cur.execute("SELECT id, question, answer, created_ts FROM flashcards WHERE username = ?", (username,))
-    flashcards = cur.fetchall()
-    conn.close()
-    return flashcards
+# --- Summaries ---
+def add_summary(username, original, summary, title=None):
+    if not title:
+        title = original[:40] + "..." if len(original) > 40 else original
+    try:
+        conn = get_db_connection()
+        with conn:
+             conn.execute("INSERT INTO summaries (username, title, original_text, summary_text) VALUES (?, ?, ?, ?)",
+                          (username, title, original, summary))
+        conn.close()
+        return True
+    except Exception as e:
+        logger.error(f"Add Summary Database Error: {e}")
+        return False
 
-def delete_flashcards(username, flashcard_ids):
-    # init_all_tables() <-- REMOVED
-    conn = sqlite3.connect(DB_FILE)
-    cur = conn.cursor()
-    placeholders = ','.join('?' for _ in flashcard_ids)
-    cur.execute(f"DELETE FROM flashcards WHERE username = ? AND id IN ({placeholders})", (username, *flashcard_ids))
-    conn.commit()
-    conn.close()
+def get_summaries(username):
+    try:
+        conn = get_db_connection()
+        rows = conn.execute("SELECT * FROM summaries WHERE username = ? ORDER BY created_ts DESC", (username,)).fetchall()
+        conn.close()
+        return rows
+    except: return []
 
+def delete_summary(summary_id):
+    try:
+        conn = get_db_connection()
+        with conn:
+            conn.execute("DELETE FROM summaries WHERE id = ?", (summary_id,))
+        conn.close()
+        return True
+    except: return False
 
-# ---------------------- Study Tracker Functions (CLEANED) ----------------------
-def add_study_log(username, subject, duration, started_at):
-    # init_all_tables() <-- REMOVED
-    conn = sqlite3.connect(DB_FILE)
-    cur = conn.cursor()
-    cur.execute("INSERT INTO study_logs (username, subject, duration_minutes, started_at) VALUES (?, ?, ?, ?)",
-                (username, subject, duration, started_at))
-    conn.commit()
-    conn.close()
+def delete_all_summaries(username):
+    try:
+        conn = get_db_connection()
+        with conn:
+            conn.execute("DELETE FROM summaries WHERE username = ?", (username,))
+        conn.close()
+        return True
+    except: return False
 
-def get_study_logs(username):
-    # init_all_tables() <-- REMOVED
-    conn = sqlite3.connect(DB_FILE)
-    cur = conn.cursor()
-    cur.execute("SELECT id, subject, duration_minutes, started_at, created_ts FROM study_logs WHERE username = ? ORDER BY started_at DESC", (username,))
-    logs = cur.fetchall()
-    conn.close()
-    return logs
+# --- Study Logs & Stats ---
+def add_study_log(username, subject, duration_minutes):
+    try:
+        conn = get_db_connection()
+        with conn:
+            conn.execute("INSERT INTO study_logs (username, subject, duration_minutes, started_at) VALUES (?, ?, ?, ?)",
+                         (username, subject, duration_minutes, datetime.now()))
+        conn.close()
+        return True
+    except: return False
 
-def delete_study_logs(username, log_ids):
-    # init_all_tables() <-- REMOVED
-    conn = sqlite3.connect(DB_FILE)
-    cur = conn.cursor()
-    placeholders = ','.join('?' for _ in log_ids)
-    cur.execute(f"DELETE FROM study_logs WHERE username = ? AND id IN ({placeholders})", (username, *log_ids))
-    conn.commit()
-    conn.close()
+def get_user_stats(username):
+    stats = {
+        'streak': 0, 
+        'total_hours': 0.0, 
+        'hours_week': 0.0, 
+        'topics_mastered': 0,
+        'daily_goal_pct': 0
+    }
+    try:
+        conn = get_db_connection()
+        
+        # Total Hours
+        rows = conn.execute("SELECT sum(duration_minutes) FROM study_logs WHERE username = ?", (username,)).fetchone()
+        if rows and rows[0]:
+            stats['total_hours'] = round(rows[0] / 60.0, 1)
 
-def get_subjects(username):
-    # init_all_tables() <-- REMOVED
-    conn = sqlite3.connect(DB_FILE)
-    cur = conn.cursor()
-    cur.execute("SELECT DISTINCT subject FROM study_logs WHERE username = ? ORDER BY subject ASC", (username,))
-    subjects = [row[0] for row in cur.fetchall()]
-    conn.close()
-    return subjects
+        # Weekly Hours
+        # Calculate start of week (Monday)
+        today = date.today()
+        start_week = today - timedelta(days=today.weekday())
+        rows = conn.execute("SELECT sum(duration_minutes) FROM study_logs WHERE username = ? AND date(started_at) >= ?", 
+                            (username, start_week.isoformat())).fetchone()
+        if rows and rows[0]:
+            stats['hours_week'] = round(rows[0] / 60.0, 1)
+            
+        # Topics (Distinct Subjects)
+        rows = conn.execute("SELECT count(DISTINCT subject) FROM study_logs WHERE username = ?", (username,)).fetchone()
+        if rows:
+            stats['topics_mastered'] = rows[0]
 
+        # Streak Calculation
+        rows = conn.execute("SELECT DISTINCT date(started_at) as dt FROM study_logs WHERE username = ? ORDER BY dt DESC", (username,)).fetchall()
+        dates = [r['dt'] for r in rows if r['dt']]
+        
+        streak = 0
+        if dates:
+            # Check if updated today or yesterday to keep streak alive
+            today_str = today.isoformat()
+            yesterday_str = (today - timedelta(days=1)).isoformat()
+            
+            current_check = today
+            if today_str not in dates and yesterday_str in dates:
+                current_check = today - timedelta(days=1)
+                
+            # Iterate backwards
+            # Simple logic: consecutive days
+            # Actually, robust logic:
+            if dates[0] == today_str or dates[0] == yesterday_str:
+                streak = 1
+                curr_date = date.fromisoformat(dates[0])
+                for d_str in dates[1:]:
+                    d = date.fromisoformat(d_str)
+                    if (curr_date - d).days == 1:
+                        streak += 1
+                        curr_date = d
+                    else:
+                        break
+        stats['streak'] = streak
 
-# ---------------------- Exam Planner Functions (CLEANED) ----------------------
-def add_exam(username, subject, exam_date, notes, difficulty):
-    # init_all_tables() <-- REMOVED
-    conn = sqlite3.connect(DB_FILE)
-    cur = conn.cursor()
-    cur.execute("INSERT INTO exams (username, subject, exam_date, notes, difficulty) VALUES (?, ?, ?, ?, ?)",
-                (username, subject, exam_date, notes, difficulty))
-    conn.commit()
-    conn.close()
+        # Daily Goal %
+        # Goal: 60 mins
+        rows = conn.execute("SELECT sum(duration_minutes) FROM study_logs WHERE username = ? AND date(started_at) = ?", 
+                            (username, today.isoformat())).fetchone()
+        today_mins = rows[0] if rows and rows[0] else 0
+        stats['daily_goal_pct'] = min(int((today_mins / 60) * 100), 100)
 
-def get_user_exams(username):
-    # init_all_tables() <-- REMOVED
-    conn = sqlite3.connect(DB_FILE)
-    cur = conn.cursor()
-    cur.execute("SELECT id, subject, exam_date, notes, difficulty FROM exams WHERE username = ?", (username,))
-    exams = cur.fetchall()
-    conn.close()
-    return exams
+        conn.close()
+    except Exception as e:
+        logger.error(f"Stats Error: {e}")
+        
+    return stats
 
-def delete_exam(username, exam_id):
-    # init_all_tables() <-- REMOVED
-    conn = sqlite3.connect(DB_FILE)
-    cur = conn.cursor()
-    cur.execute("DELETE FROM exams WHERE username = ? AND id = ?", (username, exam_id))
-    conn.commit()
-    conn.close()
+def get_tasks_this_week(username):
+    try:
+        conn = get_db_connection()
+        today = date.today()
+        start_week = today - timedelta(days=today.weekday())
+        end_week = start_week + timedelta(days=6)
+        
+        rows = conn.execute("""
+            SELECT count(*) FROM tasks 
+            WHERE username = ? 
+            AND date(due_date) >= ? 
+            AND date(due_date) <= ?
+        """, (username, start_week.isoformat(), end_week.isoformat())).fetchone()
+        count = rows[0] if rows else 0
+        conn.close()
+        return count
+    except Exception as e:
+        logger.error(f"Weekly Tasks Error: {e}")
+        return 0
 
-
-# ---------------------- Report Functions (CLEANED) ----------------------
-def save_report(username, report_name, report_data):
-    # init_all_tables() <-- REMOVED
-    conn = sqlite3.connect(DB_FILE)
-    cur = conn.cursor()
-    cur.execute("INSERT INTO reports (username, report_name, report_data) VALUES (?, ?, ?)",
-                (username, report_name, report_data))
-    conn.commit()
-    conn.close()
-
-def get_reports(username):
-    # init_all_tables() <-- REMOVED
-    conn = sqlite3.connect(DB_FILE)
-    cur = conn.cursor()
-    cur.execute("SELECT id, report_name, created_ts, report_data FROM reports WHERE username = ? ORDER BY created_ts DESC", (username,))
-    reports = cur.fetchall()
-    conn.close()
-    return reports
-
-def get_report_by_id(report_id):
-    # init_all_tables() <-- REMOVED
-    conn = sqlite3.connect(DB_FILE)
-    cur = conn.cursor()
-    cur.execute("SELECT report_data FROM reports WHERE id = ?", (report_id,))
-    report_data = cur.fetchone()
-    conn.close()
-    return report_data[0] if report_data else None
-
-
-# ---------------------- Feedback Functions (CLEANED) ----------------------
-def save_feedback(username, message, rating):
-    # init_all_tables() <-- REMOVED
-    conn = sqlite3.connect(DB_FILE)
-    cur = conn.cursor()
-    cur.execute("INSERT INTO feedback (username, message, rating) VALUES (?, ?, ?)",
-                (username, message, rating))
-    conn.commit()
-    conn.close()
-
-def get_feedback():
-    # init_all_tables() <-- REMOVED
-    conn = sqlite3.connect(DB_FILE)
-    cur = conn.cursor()
-    cur.execute("SELECT username, message, rating, created_ts FROM feedback ORDER BY created_ts DESC")
-    feedback_data = cur.fetchall()
-    conn.close()
-    return feedback_data
-
-
-# ---------------------- Initialize Tables on Import (THE ONLY CALL) ----------------------
-init_all_tables()
+def get_weekly_activity(username):
+    # Returns last 7 days activity
+    activity = []
+    try:
+        conn = get_db_connection()
+        today = date.today()
+        # Last 7 days including today
+        for i in range(6, -1, -1):
+            d = today - timedelta(days=i)
+            rows = conn.execute("SELECT sum(duration_minutes) FROM study_logs WHERE username = ? AND date(started_at) = ?", 
+                                (username, d.isoformat())).fetchone()
+            mins = rows[0] if rows and rows[0] else 0
+            day_label = d.strftime("%a") # Mon, Tue...
+            activity.append({'day': day_label, 'hours': round(mins/60.0, 1)})
+        conn.close()
+    except: pass
+    return activity
