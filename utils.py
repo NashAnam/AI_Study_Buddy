@@ -1,10 +1,28 @@
 import bcrypt
 import logging
+import os
 import streamlit as st
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+# Resolve the CSS file path relative to this file's location,
+# so it works regardless of the current working directory.
+_BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+def get_css_path():
+    """Return absolute path to custom.css."""
+    return os.path.join(_BASE_DIR, "static", "custom.css")
+
+def load_css():
+    """Inject custom CSS into the Streamlit page."""
+    css_file = get_css_path()
+    if os.path.exists(css_file):
+        with open(css_file, encoding="utf-8") as f:
+            st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+    else:
+        logger.warning(f"CSS file not found at: {css_file}")
 
 def hash_password(password: str) -> str:
     """Hash a password using bcrypt."""
@@ -30,7 +48,7 @@ def verify_password(password: str, hashed: str) -> bool:
 def load_summarizer():
     try:
         from transformers import pipeline
-        # Using a small, efficient model suitable for real-time app
+        # Small, efficient model suitable for this app
         return pipeline("summarization", model="sshleifer/distilbart-cnn-12-6")
     except Exception as e:
         logger.error(f"Error loading summarizer: {e}")
@@ -58,36 +76,38 @@ def extract_text_from_file(uploaded_file):
         logger.error(f"File Parsing Error: {e}")
     return text
 
-def generate_ai_summary(text, length_pct=0.3):
-    if not text:
+def generate_ai_summary(text, max_length=150, min_length=40):
+    """Generate a summary using the cached HuggingFace pipeline."""
+    if not text or len(text.strip()) == 0:
         return "No text provided."
-    
+
     summarizer = load_summarizer()
     if not summarizer:
         return "AI Summarizer unavailable. Ensure 'transformers' and 'torch' are installed."
-    
-    # BART/DistilBART typically has a 1024 token limit (~4000 chars)
-    # We'll split text into chunks of ~3000 chars to be safe
+
+    # DistilBART has a ~1024 token limit — chunk at ~3000 chars to stay safe
     chunk_size = 3000
     chunks = [text[i:i + chunk_size] for i in range(0, len(text), chunk_size)]
-    
+
     summaries = []
     try:
-        # Process each chunk
         for chunk in chunks:
-            # We adjust max_length based on chunk size but keep it within model limits
-            res = summarizer(chunk, max_length=150, min_length=40, do_sample=False)
+            if len(chunk.strip()) < 30:
+                continue
+            res = summarizer(chunk, max_length=max_length, min_length=min_length, do_sample=False)
             summaries.append(res[0]['summary_text'])
-        
-        # If multiple chunks, summarize the combined summaries for a final polish
+
+        if not summaries:
+            return "Text was too short or empty to summarize."
+
+        # If multiple chunks, do a final pass on the combined summaries
         if len(summaries) > 1:
             combined = " ".join(summaries)
-            # Final pass on the concatenated summaries if it's still long
             if len(combined) > chunk_size:
                 final_res = summarizer(combined[:chunk_size], max_length=200, min_length=60, do_sample=False)
                 return final_res[0]['summary_text']
             return combined
-        
+
         return summaries[0]
     except Exception as e:
         logger.error(f"AI Summary Error: {e}")
